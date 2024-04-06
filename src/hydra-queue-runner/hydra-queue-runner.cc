@@ -853,6 +853,7 @@ void State::run(BuildID buildOne)
     _destStore = storeUri == "" ? localStore : openStore(storeUri);
 
     useSubstitutes = config->getBoolOption("use-substitutes", false);
+    alwaysSupportedSystemTypes = tokenizeString<StringSet>(config->getStrOption("always_supported_system_types", ""), ",");
 
     // FIXME: hacky mechanism for configuring determinism checks.
     for (auto & s : tokenizeString<Strings>(config->getStrOption("xxx-jobset-repeats"))) {

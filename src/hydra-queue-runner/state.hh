@@ -328,6 +328,7 @@ private:
     nix::Path hydraData, logDir;
 
     bool useSubstitutes = false;
+    std::set<std::string> alwaysSupportedSystemTypes;
 
     /* The queued builds. */
     typedef std::map<BuildID, Build::ptr> Builds;

@@ -345,6 +345,10 @@ void State::abortUnsupported()
 
         bool supported = false;
         for (auto & machine : machines2) {
+            if (alwaysSupportedSystemTypes.count(step->drv->platform)) {
+                supported = true;
+                break;
+            }
             if (machine.second->supportsStep(step)) {
                 step->state.lock()->lastSupported = now;
                 supported = true;
