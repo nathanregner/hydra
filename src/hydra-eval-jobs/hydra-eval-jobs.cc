@@ -323,7 +323,7 @@ int main(int argc, char * * argv)
 
         /* Prevent access to paths outside of the Nix search path and
            to the environment. */
-        evalSettings.restrictEval = true;
+        evalSettings.restrictEval = !pureEval;
 
         /* When building a flake, use pure evaluation (no access to
            'getEnv', 'currentSystem' etc. */
