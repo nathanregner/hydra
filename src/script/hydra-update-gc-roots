@@ -131,21 +131,6 @@ foreach my $project ($db->resultset('Projects')->search({}, { order_by => ["name
                 , order_by => "id desc", rows => $keepnr });
         }
 
-        # Note: we also keep the derivations of failed builds so that
-        # they can be restarted.
-        keepBuild($_, 1) foreach $jobset->builds->search(
-            { "me.id" => { -in => $db->resultset('JobsetEvalMembers')->search({ eval => { -in => [@evals] } }, { select => "build" })->as_query }
-            , finished => 1
-            },
-            {
-                order_by => ["job", "me.id"],
-                columns => [ @columns ],
-                join      => 'jobset',
-                '+select' => ['jobset.project', 'jobset.name'],
-                '+as'     => ['jobset.project', 'jobset.name'],
-            }
-        );
-
         print STDERR "*** looking for the most recent successful builds of current jobs in ",
             $project->name, ":", $jobset->name, "\n";
 
