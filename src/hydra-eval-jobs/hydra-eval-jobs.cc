@@ -126,7 +126,7 @@ static void worker(
     if (myArgs.flake) {
         using namespace flake;
 
-        auto [flakeRef, fragment, outputSpec] = parseFlakeRefWithFragmentAndExtendedOutputsSpec(fetchSettings, myArgs.releaseExpr, absPath("."));
+        auto [flakeRef, fragment, outputSpec] = parseFlakeRefWithFragmentAndExtendedOutputsSpec(fetchSettings, myArgs.releaseExpr, absPath(std::filesystem::path{"."}));
 
         auto vFlake = state.allocValue();
 
@@ -202,9 +202,9 @@ static void worker(
                 job["license"] = queryMetaStrings(state, *drv, "license", "shortName");
                 job["homepage"] = drv->queryMetaString("homepage");
                 job["maintainers"] = queryMetaStrings(state, *drv, "maintainers", "email");
-                job["schedulingPriority"] = drv->queryMetaInt("schedulingPriority", 100);
-                job["timeout"] = drv->queryMetaInt("timeout", 36000);
-                job["maxSilent"] = drv->queryMetaInt("maxSilent", 7200);
+                job["schedulingPriority"] = drv->queryMetaInt("schedulingPriority", NixInt(1)).value;
+                job["timeout"] = drv->queryMetaInt("timeout", NixInt(36000)).value;
+                job["maxSilent"] = drv->queryMetaInt("maxSilent", NixInt(7200)).value;
                 job["isChannel"] = drv->queryMetaBool("isHydraChannel", false);
 
                 /* If this is an aggregate, then get its constituents. */

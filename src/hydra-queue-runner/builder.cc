@@ -4,6 +4,7 @@
 #include "hydra-build-result.hh"
 #include "finally.hh"
 #include "binary-cache-store.hh"
+#include "util.hh"
 
 using namespace nix;
 
@@ -178,7 +179,7 @@ State::StepResult State::doBuildStep(nix::ref<Store> destStore,
                     unlink(result.logFile.c_str());
                 }
             } catch (...) {
-                ignoreException();
+                ignoreExceptionExceptInterrupt();
             }
         }
     });
