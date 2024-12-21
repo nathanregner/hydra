@@ -7,7 +7,8 @@
     url = "github:libgit2/libgit2/v1.8.1";
     flake = false;
   };
-  inputs.nix.url = "github:NixOS/nix/2.25-maintenance";
+  inputs.nix.url = "github:nathanregner/nix";
+  # inputs.nix.url = "github:NixOS/nix/2.25-maintenance";
   inputs.nix.inputs.nixpkgs.follows = "nixpkgs";
   inputs.nix.inputs.libgit2.follows = "libgit2";
 
