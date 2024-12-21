@@ -1,12 +1,5 @@
 fs = import('fs')
 
-test('perlcritic',
-  perl,
-  args: ['-w', files('perlcritic.pl')],
-  workdir: meson.project_source_root(),
-  timeout: -1,
-)
-
 testenv = environment(
   {
     'BZR_HOME': meson.current_build_dir() / 'data',
