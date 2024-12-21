@@ -32,11 +32,11 @@
         "nixpkgs-regression": []
       },
       "locked": {
-        "lastModified": 1734814444,
-        "narHash": "sha256-S9uEeKauXoHEwKtNl1/QJ30Yb2hqPn1DGq89lGL9lZ8=",
+        "lastModified": 1734817342,
+        "narHash": "sha256-DXUasUHwE0gDcDQ1AI+0zMxLd0ww8DHRq5enOKUDcso=",
         "owner": "nathanregner",
         "repo": "nix",
-        "rev": "ffd9c2a8193c6a15c1b960495f333a631019e72f",
+        "rev": "a551273f22fed679ce4994e71519b12f9bcbd536",
         "type": "github"
       },
       "original": {
