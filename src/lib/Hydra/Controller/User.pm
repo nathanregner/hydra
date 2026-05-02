@@ -25,6 +25,11 @@ sub login :Local :Args(0) :ActionClass('REST') { }
 sub login_POST {
     my ($self, $c) = @_;
 
+    if ($c->config->{proxy_auth} &&
+        ($c->config->{proxy_auth}->{disable_password_login} // 0) ne "0") {
+        accessDenied($c, "Password login is disabled.");
+    }
+
     my $username = $c->stash->{params}->{username} // "";
     my $password = $c->stash->{params}->{password} // "";
 
@@ -88,6 +93,49 @@ sub doLDAPLogin {
             }
         }
     }
+    $c->set_authenticated($user);
+}
+
+sub doProxyLogin {
+    my ($c, $username, $proxy_config) = @_;
+
+    $username = lc($username);
+    $username =~ s/[^a-z0-9_\.\-]//g;
+    return if $username eq "";
+
+    my $user = $c->find_user({ username => $username });
+    my $auto_create = ($proxy_config->{auto_create_user} // 1) ne "0";
+
+    my $roles_header = $proxy_config->{roles_header} // "X-Remote-Roles";
+    my $roles_str = $c->request->header($roles_header) // "";
+    # TODO: no validation that roles are valid Hydra role names
+    my @roles = grep { $_ ne "" } split /\s*,\s*/, $roles_str;
+
+    if (!$user && $auto_create) {
+        $c->model('DB::Users')->create({
+            username => $username,
+            fullname => $username,
+            password => "!",  # "!" disables password login (no hash can match)
+            emailaddress => "",
+            type => "proxy"
+        });
+        $user = $c->find_user({ username => $username }) or return;
+        for my $role (@roles) {
+            $user->userroles->create({ role => $role });
+        }
+    } elsif ($user) {
+        if ($user->type ne "proxy") {
+            $user->update({ type => "proxy" });
+        }
+        # TODO: roles are deleted/recreated on every session-less request even if unchanged
+        $user->userroles->delete;
+        for my $role (@roles) {
+            $user->userroles->create({ role => $role });
+        }
+    } else {
+        return;
+    }
+
     $c->set_authenticated($user);
 }
 

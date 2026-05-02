@@ -266,6 +266,61 @@ default role mapping:
 Note that configuring both the LDAP parameters in the hydra.conf and via
 the environment variable is a fatal error.
 
+Proxy-Based Authentication
+--------------------------
+
+When running Hydra behind a trusted reverse proxy that handles authentication
+(e.g., nginx with Tailscale, OAuth2 Proxy, Authelia), you can configure Hydra
+to trust the authentication provided by the proxy.
+
+**Warning**: Only enable this when your Hydra instance is NOT directly accessible
+from untrusted networks. The proxy MUST be the only way to reach Hydra.
+
+Example configuration:
+
+```conf
+using_frontend_proxy = 1
+
+<proxy_auth>
+  # HTTP header set by your reverse proxy containing the username
+  user_header = X-Remote-User
+
+  # HTTP header containing roles (default: X-Remote-Roles)
+  # Valid roles: admin, bump-to-front, cancel-build, create-projects,
+  #              eval-jobset, restart-jobs
+  # roles_header = X-Remote-Roles
+
+  # Auto-create users that don't exist (default: 1)
+  auto_create_user = 1
+
+  # Disable password login entirely (default: 0)
+  disable_password_login = 1
+</proxy_auth>
+```
+
+### nginx Configuration Example
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name hydra.example.ts.net;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Request-Base /;
+
+        # Set authenticated username and roles
+        proxy_set_header X-Remote-User "admin";
+        proxy_set_header X-Remote-Roles "admin";
+    }
+}
+```
+
 Webhook Authentication
 ---------------------
 

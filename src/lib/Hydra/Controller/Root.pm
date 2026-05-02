@@ -62,6 +62,17 @@ sub begin :Private {
     $c->stash->{successMsg} = $c->flash->{successMsg};
     $c->stash->{localStore} = isLocalStore;
 
+    # TODO: if user_exists but header contains different username, existing session wins
+    if ($c->config->{using_frontend_proxy} && $c->config->{proxy_auth} && !$c->user_exists) {
+        my $proxy_config = $c->config->{proxy_auth};
+        my $user_header = $proxy_config->{user_header} // "X-Remote-User";
+        my $remote_user = $c->request->header($user_header);
+        if (defined $remote_user && $remote_user ne "") {
+            require Hydra::Controller::User;
+            Hydra::Controller::User::doProxyLogin($c, $remote_user, $proxy_config);
+        }
+    }
+
     $c->stash->{isPrivateHydra} = $c->config->{private} // "0" ne "0";
 
     if ($c->stash->{isPrivateHydra} && ! noLoginNeeded($c)) {
